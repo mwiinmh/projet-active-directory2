@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projet Active Directory | BTS SIO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Fira Code', monospace;
+      background: linear-gradient(135deg, #0d47a1, #1e88e5);
+      color: #ffffff;
+      min-height: 100vh;
+    }
+
+    nav {
+      background-color: rgba(0,0,0,0.3);
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      padding: 1rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    nav a {
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #90caf9;
+    }
+
+    header {
+      text-align: center;
+      padding: 2rem 1rem;
+      background-color: rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      color: #90caf9;
+      text-shadow: 0 0 8px #42a5f5;
+    }
+
+    header p {
+      font-size: 1.1rem;
+      color: #e3f2fd;
+      margin-top: 0.5rem;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+
+    .step-box {
+      background-color: rgba(255,255,255,0.08);
+      border-left: 5px solid #42a5f5;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 0 10px rgba(66,165,245,0.3);
+    }
+
+    .step-box h2 {
+      margin-top: 0;
+      color: #bbdefb;
+    }
+
+    .step-box p {
+      margin: 0.5rem 0;
+    }
+
+    img.guide {
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 0 15px #0d47a1aa;
+    }
+
+    .btn-rapport {
+      display: block;
+      width: fit-content;
+      margin: 2rem auto;
+      padding: 1rem 2rem;
+      background-color: #42a5f5;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 0 10px #42a5f5aa;
+    }
+
+    .btn-rapport:hover {
+      background-color: #2196f3;
+      transform: scale(1.05);
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.9rem;
+      color: #bbdefb;
+    }
+
+    footer a {
+      color: #bbdefb;
+      text-decoration: none;
+      font-size: 1.2rem;
+    }
+
+    footer a:hover {
+      color: #ffffff;
+    }
+
+    @media screen and (max-width: 600px) {
+      nav {
+        flex-direction: column;
+        align-items: center;
+      }
+      .step-box {
+        padding: 1rem;
+      }
+      header h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="#intro">Intro</a>
+    <a href="#machines">Machines</a>
+    <a href="#controller">Contrôleur</a>
+    <a href="#pfsense">pfSense</a>
+    <a href="#poste">POSTE</a>
+    <a href="#utilisateurs">Utilisateurs</a>
+    <a href="#tests">Tests</a>
+    <a href="#schema">Schéma</a>
+  </nav>
+
+  <header>
+    <h1><i class="fa-solid fa-server"></i> Projet Active Directory – BTS SIO</h1>
+    <p>Déploiement d'une infrastructure Windows Server sur VMware avec pfSense & DHCP</p>
+  </header>
+
+  <main>
+    <div class="step-box" id="machines">
+      <h2>🖥️ Création des machines virtuelles</h2>
+      <p>Nous avons utilisé VMware Workstation pour créer trois machines :</p>
+      <ul>
+        <li><strong>DCS</strong> : le futur contrôleur de domaine</li>
+        <li><strong>POSTE</strong> : une station Windows 10</li>
+        <li><strong>pfSense</strong> : pour faire office de routeur/DHCP</li>
+      </ul>
+      <p>Toutes les VM sont placées dans le réseau <strong>VMnet9</strong> (type host-only) pour permettre la communication locale. VMnet9 est configuré avec la plage <code>172.16.0.X</code> pour correspondre à la numérotation alphabétique de notre prénom.</p>
+    </div>
+
+    <div class="step-box" id="controller">
+      <h2>🧱 Configuration du contrôleur de domaine</h2>
+      <p>La machine DCS est renommée en <code>DCS</code> via <strong>sysdm.cpl</strong>. Ensuite :</p>
+      <ul>
+        <li>Configuration IP statique : <code>172.16.0.13</code></li>
+        <li>Installation du rôle <strong>AD DS</strong></li>
+        <li>Promotion du serveur en contrôleur de domaine pour <code>dcs.test.fr</code></li>
+        <li>Ajout de la console <strong>MMC</strong> pour gérer AD et les utilisateurs</li>
+      </ul>
+    </div>
+
+    <div class="step-box" id="pfsense">
+      <h2>📶 Configuration pfSense</h2>
+      <p>pfSense est configuré comme routeur avec deux interfaces :</p>
+      <ul>
+        <li><strong>WAN</strong> : NAT pour avoir accès Internet</li>
+        <li><strong>LAN</strong> : IP <code>172.16.0.1</code>, passerelle du réseau</li>
+      </ul>
+      <p>Le service <strong>DHCP</strong> est activé sur l'interface LAN avec une plage allant de <code>172.16.0.100</code> à <code>172.16.0.200</code>.</p>
+    </div>
+
+    <div class="step-box" id="poste">
+      <h2>💻 Joindre la station au domaine</h2>
+      <p>La station POSTE a reçu une IP statique <code>172.16.0.11</code> dans un premier temps pour joindre le domaine :</p>
+      <ul>
+        <li>DNS configuré sur <code>172.16.0.13</code></li>
+        <li>POSTE renommé en <code>POSTE</code></li>
+        <li>Ajout au domaine <code>dcs.test.fr</code></li>
+      </ul>
+      <p>Ensuite, on repasse l'IP en automatique (DHCP via pfSense).</p>
+    </div>
+
+    <div class="step-box" id="utilisateurs">
+      <h2>🗃️ Création des utilisateurs et partages</h2>
+      <p>Création de l'utilisateur <strong>Mwindjou</strong> et des groupes dans l'Active Directory via la console MMC.</p>
+      <p>Création d’un dossier <code>Commun</code> sur DCS, partagé avec un lecteur réseau <strong>P:</strong> pour les utilisateurs du domaine.</p>
+      <p>Ajout d’un raccourci vers <code>menu.bat</code> sur le bureau de la station.</p>
+    </div>
+
+    <div class="step-box" id="tests">
+      <h2>🧪 Tests et outils</h2>
+      <p>Connexion avec <code>test\Mwindjou</code> sur la station POSTE. Vérification des :</p>
+      <ul>
+        <li>Lecteurs réseau montés</li>
+        <li>Raccourcis fonctionnels</li>
+        <li>GPO appliquées</li>
+      </ul>
+      <p>Utilisation de <strong>RSAT</strong> sur la station pour l’administration à distance.</p>
+    </div>
+
+    <div class="step-box" id="schema">
+      <h2>📸 Aperçu du schéma</h2>
+      <img src="projet_active_directory_geek.png" alt="Schéma AD" class="guide" onerror="this.style.display='none'" />
+    </div>
+
+    <a href="rapport-active-directory.pdf" class="btn-rapport" target="_blank"><i class="fa-solid fa-file-lines"></i> Voir le rapport complet</a>
+  </main>
+
+  <footer>
+    <p>© 2025 Mwindjou - Tous droits réservés |
+      <a href="https://github.com/mwiinmh" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
+    </p>
+  </footer>
+
+</body>
+</html>
